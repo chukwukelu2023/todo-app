@@ -1,4 +1,4 @@
-// Models must stay identical to prisma/postgres/schema.prisma (checked by tests/schema-sync.test.ts).
+// Models must stay identical to prisma/schema.prisma (checked by tests/schema-sync.test.ts).
 // prisma.config.ts picks the schema from the DATABASE_URL scheme.
 
 generator client {
@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
