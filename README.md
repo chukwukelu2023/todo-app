@@ -2,6 +2,27 @@
 
 A multi-user todo application built with **Next.js 16 (App Router, TypeScript)**, **Prisma** (SQLite locally, PostgreSQL in production), **Auth.js** and **Tailwind CSS**. The API and the frontend live in the same Next.js project.
 
+## Live demo
+
+**App:** https://todo-app-production-7356.up.railway.app
+
+Sign in with the shared test account:
+
+| Email | Password | Role |
+|---|---|---|
+| `hngi5@yopmail.com` | `eUMH7kK6swe8JwN` | User |
+
+Things to try:
+
+1. **Create a task:** click **New task** and enter a title, a description and a starting status (for example *Backlog*).
+2. **Open it:** click any row in the list to see its description, timestamps and **Progress history**.
+3. **Track progress:** use **Move to** on the task page to go *Backlog → Pending → In Progress → Completed*. Each change is added to the history with its time.
+4. **Edit or delete** a task from its page.
+5. **Filter and sort** the list by status, by created / updated / status-changed time, and newest or oldest first.
+6. **Paginate:** switch between 10 and 15 tasks per page. The `#` column keeps counting across pages.
+
+> **Note:** this is a shared public account, so anyone can see and change its tasks. Please don't store anything private in it. It's a normal user, so the admin features (creating users, seeing everyone's tasks, filtering by user) aren't available with it. To try those, run the app locally as the seeded admin (see [Getting started](#getting-started)).
+
 ## Features
 
 - Create, edit and delete tasks with a title and description
@@ -62,6 +83,20 @@ DATABASE_URL="postgresql://..." npm run db:migrate -- --name my_change
 In PowerShell, set the variable first: `$env:DATABASE_URL="postgresql://..."; npm run db:migrate -- --name my_change`, then `Remove-Item Env:DATABASE_URL` afterwards.
 
 The generated Prisma client matches the database that was active when it was generated. After pointing `DATABASE_URL` somewhere else, run `npx prisma generate`. The `postinstall` and `vercel-build` scripts do this automatically.
+
+## Deploying to Railway
+
+The live demo runs on [Railway](https://railway.com) with PostgreSQL.
+
+1. Create a Railway project from the GitHub repo and deploy the `main` branch.
+2. Add a PostgreSQL database, either Railway's own plugin or an external one such as Aiven.
+3. On the app service, set these variables:
+   - `DATABASE_URL`: the Postgres URL. With Railway Postgres you can reference it as `${{Postgres.DATABASE_URL}}`.
+   - `AUTH_SECRET`: a new random string (`npx auth secret`).
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD` and `ADMIN_NAME`.
+4. Make sure migrations run on each deploy. Either set the service's **Pre-Deploy Command** to `npx prisma migrate deploy`, or set the **Build Command** to `npm run vercel-build` (generate, migrate, build).
+5. Under Settings → Networking, click **Generate Domain** to get a public `*.up.railway.app` URL.
+6. Create the first admin once by running `npm run db:seed` with the production `DATABASE_URL` (see step 4 of the Vercel section below). Then sign in and create other users from **Users**.
 
 ## Deploying to Vercel with PostgreSQL (e.g. Aiven)
 
