@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String            @id @default(cuid())
+  email        String            @unique
+  name         String
+  passwordHash String
+  role         String            @default("USER") // "ADMIN" | "USER"
+  createdAt    DateTime          @default(now())
+  tasks        Task[]
+  statusEvents TaskStatusEvent[]
+}
+
+model Task {
+  id              String            @id @default(cuid())
+  title           String
+  description     String            @default("")
+  status          String            @default("PENDING") // BACKLOG | PENDING | IN_PROGRESS | COMPLETED
+  statusChangedAt DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ownerId         String
+  owner           User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  statusEvents    TaskStatusEvent[]
+
+  @@index([ownerId, status])
+  @@index([createdAt])
+}
+
+model TaskStatusEvent {
+  id          String   @id @default(cuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  fromStatus  String?
+  toStatus    String
+  changedAt   DateTime @default(now())
+  changedById String
+  changedBy   User     @relation(fields: [changedById], references: [id], onDelete: Cascade)
+
+  @@index([taskId, changedAt])
+}
